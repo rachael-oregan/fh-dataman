@@ -15,6 +15,7 @@ import buildEndpoints from './endpoints/http';
 import errorHandler from './endpoints/http/error.js';
 import {setLogger} from './logger';
 import validation from '../config/validation';
+import jwtAuthenticate from './middleware/jwt-authenticate';
 
 var TITLE = "fh-dataman";
 process.env.component = TITLE;
@@ -103,11 +104,15 @@ function startWorker(logger, fhconfig) {
 function startApp(logger, fhconfig) {
   const app = express();
   app.use(logger.requestIdMiddleware);
-     // Enable CORS for all requests
+
+  // Enable CORS for all requests
   app.use(cors());
 
   // Request logging
   app.use(bunyanLogger({ logger: logger, parseUA: false, genReqId: req => req.header(logger.requestIdHeader) }));
+
+  // Authenticate requests
+  app.use(jwtAuthenticate({ secret: fhconfig.value('auth.secret') }));
 
   // Parse JSON payloads
   app.use(bodyParser.json({limit: fhconfig.value('fhmbaas.maxpayloadsize') || "20mb"}));

@@ -13,5 +13,8 @@
       "level": "trace",
       "stream": "ringBuffer"
     }]
+  },
+  "auth": {
+    "secret": "secret"
   }
 }
