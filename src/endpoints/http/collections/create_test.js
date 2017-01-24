@@ -1,11 +1,9 @@
 import assert from 'assert';
 import createCollection from './create';
 import sinon from 'sinon';
+import {getLogger} from '../../../logger';
 
-const mockLogger = {
-  debug: () => {}
-};
-
+const logger = getLogger();
 const createCollectionStub = sinon.stub();
 
 const mockDb = {
@@ -13,16 +11,13 @@ const mockDb = {
 };
 
 export function testCreateCollection(done) {
-  createCollectionStub.yields(null);
-  createCollection('test-create-collection', mockLogger, mockDb, 'testCollection').then(result => {
-    assert.equal(result, 'testCollection');
-  });
+  createCollectionStub.returns(true);
+  assert.equal(createCollection('test-create-collection', logger, mockDb, 'testCollection'), true);
   done();
 }
 
 export function testCreateCollectionFailure(done) {
-  createCollectionStub.yields('someError');
-  createCollection('test-create-collection', mockLogger, mockDb, 'testCollection').catch(function() {
-    return done();
-  });
+  createCollectionStub.returns(false);
+  assert.equal(createCollection('test-create-collection', logger, mockDb, 'testCollection'), false);
+  done();
 }
