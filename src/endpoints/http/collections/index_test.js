@@ -16,6 +16,7 @@ sinonStubPromise(sinon);
 const app = express();
 const router = express.Router();
 const logger = getLogger();
+
 collectionsHandler(router);
 const dropCollecionStub = sinon.stub().returnsPromise();
 app.use(bodyParser.json());
@@ -29,6 +30,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/api', router);
+app.use(errorHandler);
 
 module.exports = {
   'test collection handlers': {
@@ -43,7 +45,7 @@ module.exports = {
       });
       sinon.stub(createImpl, 'default', () => {
         console.log('use mock createImpl');
-        return true;
+        return Promise.resolve(true);
       });
       dropCollecionStub.resolves('collection1,collection2 collection(s) deleted');
       done();
@@ -66,7 +68,7 @@ module.exports = {
           assert.equal(res.text, '"collection1,collection2 collection(s) deleted"');
         });
     },
-    'test delete handler empty query': done => {
+    'test delete handler names of collections required': done => {
       supertest(app)
         .delete('/api/collections?')
         .expect(400)
@@ -80,6 +82,12 @@ module.exports = {
         .then(function(res) {
           assert.equal(res.text, 'testCollection collection deleted');
         });
+    },
+    'test create handler name required': done => {
+      supertest(app)
+        .post('/api/collections')
+        .expect(400)
+        .end(done);
     }
   }
 };
