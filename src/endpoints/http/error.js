@@ -32,6 +32,7 @@ export default function errorHandler(err, req, res, next) {
 
       return res.status(err.code || 500).json(error);
     }
+    console.log("err: ", err);
     return res.status(err.code || 500).json(err);
   }
 }
