@@ -20,7 +20,6 @@ const logger = getLogger();
 collectionsHandler(router);
 const dropCollecionStub = sinon.stub().returnsPromise();
 app.use(bodyParser.json());
-app.use(errorHandler);
 app.use((req, res, next) => {
   req.log = logger;
   req.db = {
@@ -28,6 +27,7 @@ app.use((req, res, next) => {
   };
   next();
 });
+app.use(errorHandler);
 
 app.use('/api', router);
 app.use(errorHandler);
