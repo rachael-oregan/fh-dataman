@@ -9,10 +9,7 @@
  */
 function deleteCollection(appname, logger, db, collection) {
   logger.debug({appname}, 'deleting collection');
-  return db.dropCollection(collection)
-    .then(function(success) {
-      return {success: success, name: collection};
-    });
+  return db.dropCollection(collection);
 }
 
 export default function deleteCollections(appname, logger, db, reqCollections) {
