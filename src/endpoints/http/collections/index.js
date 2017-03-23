@@ -87,4 +87,8 @@ export function collectionsHandler(router) {
         next(err);
       });
   });
+
+  router.post('/collections/export', (req, res, next) => {
+    
+  });
 }
