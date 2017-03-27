@@ -2,6 +2,7 @@ import listCollections from './list';
 import createCollection from './create';
 import deleteCollections from './delete';
 import {insertCollections, getCollectionNames} from './files';
+import exportCollections from './export';
 import parseFile from '../../../middleware/parse-file';
 import statusCodes from 'http-status-codes';
 import authorize from '../../../middleware/route-authorize';
@@ -88,7 +89,23 @@ export function collectionsHandler(router) {
       });
   });
 
-  router.post('/collections/export', (req, res, next) => {
-    
+  router.get('/collections/export', authorize({ permission: 'read' }), (req, res, next) => {
+    if (!req.query.format.length) {
+      return next({ message: 'No format selected', code: statusCodes.BAD_REQUEST });
+    }
+    res.setHeader('Content-disposition', 'attachment; filename=collections.zip');
+    res.setHeader('Content-type', 'application/zip');
+
+    const collections = req.query.collections ? req.query.collections.split(',') : [];
+    req.log.debug(collections.length ? collections : ['ALL COLLECTIONS'], 'collection(s) export started');
+
+    exportCollections(req.db, collections, req.query.format, res)
+      .then(() => {
+        req.log.trace(collections.length ? collections : ['ALL COLLECTIONS'], ' Collection(s) export complete');
+        res.status(statusCodes.OK).end();
+      })
+      .catch(err => {
+        next(err);
+      });
   });
 }
