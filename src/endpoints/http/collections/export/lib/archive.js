@@ -1,6 +1,6 @@
 import yazl from 'yazl';
 
-export default function archive(collections) {
+function archive(collections) {
   const zipFile = new yazl.ZipFile();
   collections.forEach(collection => {
     zipFile.addReadStream(collection, `${collection.filename}`);
@@ -8,3 +8,5 @@ export default function archive(collections) {
   zipFile.end();
   return zipFile.outputStream;
 }
+
+export { archive };

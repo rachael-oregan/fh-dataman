@@ -1,5 +1,5 @@
-import parsers from './lib/parser';
-import archive from './lib/archive';
+import * as parsers from './lib/parser';
+import * as archive from './lib/archive';
 import UnsupportedMediaError from '../../../../Errors/UnsupportedMediaError';
 
 const GB = 1073741824;
@@ -36,6 +36,7 @@ function getCollectionStreams(collections, db, format, raw) {
 function setParsers(streams, format) {
   return streams.map(collection => {
     try {
+      console.log("-----parsers: ", parsers);
       const parsedCollections = parsers[format](collection);
       return parsedCollections;
     } catch (err) {
@@ -45,7 +46,6 @@ function setParsers(streams, format) {
 }
 
 function exportZip(zipFile, out) {
-  console.log("----outStream: ", out);
   return new Promise((resolve, reject) => {
     zipFile
       .pipe(out)
@@ -61,15 +61,12 @@ function exportHandler(db, collectionNames, format, out) {
         throw new Error("Cannot export collections larger than a gigabyte");
       }
       const streams = getCollectionStreams(collectionNames, db, format, format === 'bson');
+      console.log("----streams: ", streams);
       const parsedCollections = setParsers(streams, format);
       return Promise.all(parsedCollections);
     })
     .then(collections => archive(collections))
-    .then(zipFile => {
-      console.log("------zipFileThen: ", zipFile);
-      console.log("--------out: ", out);
-      exportZip(zipFile, out);
-    });
+    .then(zipFile => exportZip(zipFile, out));
 }
 
 /**
